@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fênix Fono 1.7</title>
+<style>
+:root{--bg:#f3f6fa;--card:#fff;--ink:#14213d;--mut:#5b6b85;--line:#d9e1ec;--acc:#e8870e;--acc2:#0d8f84;--err:#c0392b;--ok:#0d8f84;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1626;--card:#16223a;--ink:#eaf0fa;--mut:#98a8c4;--line:#27375a;--acc:#f5a03a;--acc2:#35c2b4;--err:#ff8a78;--ok:#35c2b4}}
+:root[data-theme="dark"]{--bg:#0e1626;--card:#16223a;--ink:#eaf0fa;--mut:#98a8c4;--line:#27375a;--acc:#f5a03a;--acc2:#35c2b4;--err:#ff8a78;--ok:#35c2b4}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Atkinson Hyperlegible",system-ui,sans-serif}
+main{max-width:660px;margin:0 auto;padding:18px 16px 40px}
+h1{font-size:1.5rem;margin:0 0 2px}
+.sub,.nota{color:var(--mut)}.sub{margin:0 0 16px}.nota{font-size:.88rem;margin:8px 0 0}
+nav{display:flex;gap:6px;margin-bottom:16px}
+nav button{flex:1;padding:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;font:inherit;cursor:pointer}
+nav button[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.texto{font-size:1.2rem;line-height:1.75;margin:0}
+.x{color:var(--err);text-decoration:underline wavy}.o{background:rgba(232,135,14,.28);border-radius:4px;text-decoration:line-through}
+.btn{padding:12px 22px;border:0;border-radius:999px;background:var(--acc);color:#1b1100;font:inherit;font-weight:700;cursor:pointer}
+.btn.sec{background:transparent;border:1px solid var(--line);color:var(--ink);font-weight:400;padding:8px 14px}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--acc2);outline-offset:2px}
+canvas{width:100%;height:150px;display:block;background:var(--bg);border-radius:10px}
+.vol{height:10px;background:var(--line);border-radius:6px;overflow:hidden;margin:10px 0}.vol i{display:block;height:100%;width:0;background:var(--acc2)}
+table{width:100%;border-collapse:collapse}td,th{padding:7px 4px;border-bottom:1px solid var(--line);text-align:left;font-weight:400}
+th{color:var(--mut);font-size:.82rem}td:not(:first-child),th:not(:first-child){text-align:right}
+.msg{margin:12px 0 0}.cfg input[type=text],.cfg input[type=password]{width:200px;padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit}.erro{color:var(--err)}.ar{font-weight:700;margin-left:6px;color:var(--mut)}.ar.ok{color:var(--ok)}.ar.ru{color:var(--err)}.tbl{overflow-x:auto}#sob{margin-top:10px;padding:12px;border:1px solid var(--line);border-radius:10px;font-size:.92rem}#sob p{margin:0 0 8px}
+details summary{cursor:pointer;font-weight:700}
+.cfg{display:grid;grid-template-columns:1fr auto;gap:8px 12px;align-items:center;margin-top:10px}
+.cfg input[type=number],select,textarea{padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit}
+.cfg input[type=number]{width:72px}textarea{width:100%;min-height:90px;margin-top:10px}
+.resp{display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px 0}
+.orb{width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--acc2),var(--ink));transform:scale(.55)}
+.fase{font-size:1.4rem;font-weight:700;min-height:2rem;text-align:center}.cont{font-size:2rem;min-height:2.6rem}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){.orb{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+<h1>Fênix Fono 1.7</h1>
+<p class="sub">Treino de voz e leitura. Você compete só com a sua última vez.</p>
+<nav role="tablist"><button role="tab" id="t1" aria-selected="true">Leitura</button><button role="tab" id="t2" aria-selected="false">Respiração</button><button role="tab" id="t3" aria-selected="false">Conta</button></nav>
+
+<section id="p1">
+<div class="card"><p class="texto" id="txt"></p>
+<details><summary class="nota">Gerar ou trocar o texto</summary>
+<div class="cfg">
+<label for="g1">Tema</label><select id="g1" data-k="gtema"><option>Variado</option><option>Natureza</option><option>Cotidiano</option><option>Tecnologia</option><option>Aventura</option></select>
+<label for="g2">Tamanho em</label><select id="g2" data-k="gmodo"><option value="min">minutos de leitura</option><option value="pal">palavras</option></select>
+<label for="g3">Quantidade</label><input id="g3" type="number" data-k="gval" min="1" max="2000" step="0.5">
+<label for="g4">Nível</label><select id="g4" data-k="gnivel"><option>Criança (6 a 9 anos)</option><option>Pré-adolescente (10 a 13 anos)</option><option>Jovem e adulto</option></select>
+<label for="g5">Tom</label><select id="g5" data-k="gtom"><option>Neutro</option><option>Alegre</option><option>Suspense</option><option>Solene</option></select>
+<label for="g6">Treinar sons ou palavras</label><input id="g6" type="text" data-k="gfoco" placeholder="ex.: R, L, trava-línguas" maxlength="80">
+<label><input type="checkbox" data-k="gerr"> Incluir as palavras que mais errei</label><span></span>
+<label><input type="checkbox" data-k="gia"> Gerar com IA</label><span></span>
+<label for="g7">Endereço da função</label><input id="g7" type="text" data-k="gurl" placeholder="https://...cloudfunctions.net/gerarTexto"></div>
+<p><button class="btn" id="gt">Gerar texto</button></p><p class="nota" id="gi"></p><p class="nota">Com IA, só são enviados tema, tamanho, nível, tom, o foco escrito e as palavras escolhidas. Nunca a sua voz. Sem internet ou sem IA, o app usa o banco de textos.</p>
+<p class="nota" style="margin-top:14px">Ou cole o seu próprio texto:</p>
+<textarea id="ta" aria-label="Texto de leitura"></textarea><p><button class="btn sec" id="ut">Usar este texto</button></p></details></div>
+<div class="card">
+<button class="btn" id="rec">Gravar leitura</button>
+<canvas id="mt" width="600" height="28" style="height:28px;margin:10px 0" aria-label="Medidor de volume"></canvas>
+<canvas id="cv" width="600" height="150" aria-label="Curva do tom da sua voz"></canvas>
+<canvas id="vc" width="600" height="110" style="height:110px;margin-top:8px" aria-label="Volume da voz ao longo do tempo"></canvas>
+<p class="nota">Medidor e gráfico de volume: cinza = baixo demais, verde = faixa boa, amarelo = forte, vermelho = alto demais. Os limites são configuráveis.</p>
+<p class="nota" id="st">Leia o texto em voz alta. Se trocar uma palavra, tudo bem: o app mostra o que mudou.</p>
+</div>
+<div class="card" id="res" hidden>
+<table><thead><tr><th>Medida</th><th>Agora</th><th>Última</th><th id="thm">Média</th></tr></thead><tbody id="tb"></tbody></table>
+<p class="nota" id="pn"></p><p class="msg" id="fb"></p>
+<p><button class="btn sec" id="sbt" aria-expanded="false">Sobre os resultados</button></p>
+<div id="sob" hidden>
+<p><b>Setas:</b> ▲ subiu, ▼ caiu, ● manteve (variação pequena), sempre comparando com a leitura anterior. Verde = foi para o lado bom; vermelho = piorou; cinza = sem lado bom ou ruim (ex.: tempo de fala).</p>
+<p><b>Tempo de fala:</b> do primeiro ao último som da leitura.</p>
+<p><b>Ritmo (palavras/min):</b> palavras reconhecidas ÷ tempo de fala. Referência aproximada para leitura confortável: 110 a 160.</p>
+<p><b>Sílabas por segundo:</b> estimativa feita só pelo áudio, sem reconhecer palavras. Referência aproximada: 3,5 a 6.</p>
+<p><b>Pausas:</b> silêncios de 0,4 s ou mais no meio da leitura. O melhor é acompanhar a pontuação do texto.</p>
+<p><b>Expressividade:</b> quanto o tom da voz varia (em semitons). Abaixo de 1,5 soa monótono; de 1,5 a 3, moderado; acima de 3, expressivo.</p>
+<p><b>Volume (dBFS):</b> nível digital do microfone. 0 é o máximo; quanto mais perto de 0, mais forte. Não é o dB do ambiente. No medidor: cinza abaixo de -30, verde de -30 a -15, amarelo de -15 a -6, vermelho acima de -6 (limites configuráveis).</p><p><b>Tempo na faixa boa / no vermelho:</b> porcentagem da sua fala que ficou no verde e no vermelho.</p>
+<p><b>Palavras certas (%):</b> palavras do texto que o reconhecimento ouviu na ordem certa.</p>
+<p><b>Média:</b> de todas as leituras guardadas neste aparelho (veja o histórico completo abaixo).</p>
+</div>
+</div>
+<div class="card" id="cmp" hidden><strong>Comparação com o texto</strong><table><tbody id="cb"></tbody></table><div id="cd"></div><p class="nota" id="cn"></p></div>
+<div class="card"><strong>Evolução neste texto</strong> <select id="gm" aria-label="Medida do gráfico"><option value="pc">% de palavras certas</option><option value="expr">Expressividade</option><option value="pausas">Pausas</option><option value="ppm">Palavras/min</option><option value="sps">Sílabas/s</option><option value="vdb">Volume (dBFS)</option><option value="zi">% do tempo na faixa boa</option></select>
+<canvas id="gc" width="600" height="150"></canvas><p class="nota" id="gn"></p></div>
+<details class="card"><summary>Histórico completo</summary><div class="tbl"><table><thead><tr><th>Data</th><th>Texto</th><th>Fala s</th><th>Pal/min</th><th>Síl/s</th><th>Pausas</th><th>Expr.</th><th>dBFS</th><th>%</th></tr></thead><tbody id="hb"></tbody></table></div><p class="nota" id="hn"></p><p><button class="btn sec" id="hclr">Apagar histórico</button></p></details>
+<div class="card"><strong>Suas últimas falas</strong><div id="ag" class="nota"></div>
+<p class="nota">Ficam guardadas só neste aparelho. <button class="btn sec" id="apg">Apagar tudo</button></p></div>
+<details class="card"><summary>Configurações da leitura</summary><div class="cfg">
+<label for="c_n">Leituras no gráfico</label><input id="c_n" type="number" data-k="n" min="2" max="50">
+<label for="c_k">Falas guardadas (0 = não guardar)</label><input id="c_k" type="number" data-k="keep" min="0" max="10">
+<label for="c_zl">Volume mínimo bom (dBFS)</label><input id="c_zl" type="number" data-k="zl" min="-60" max="0">
+<label for="c_zy">Começa o amarelo (dBFS)</label><input id="c_zy" type="number" data-k="zy" min="-60" max="0">
+<label for="c_zr">Começa o vermelho (dBFS)</label><input id="c_zr" type="number" data-k="zr" min="-60" max="0"></div></details>
+</section>
+
+<section id="p2" hidden>
+<div class="card resp">
+<div class="orb" id="orb"></div><div class="fase" id="fase">Pronto?</div><div class="cont" id="cont"></div>
+<div class="nota" id="ciclos">Mão na barriga: ela sobe ao inspirar.</div>
+<button class="btn" id="rgo">Começar</button>
+</div>
+<details class="card" open><summary>Configurações da respiração</summary><div class="cfg">
+<label for="b1">Inspirar (s)</label><input id="b1" type="number" data-k="ins" min="1" max="20" step="0.5">
+<label><input type="checkbox" data-k="segOn"> Segurar o ar (s)</label><input type="number" data-k="seg" min="1" max="20" step="0.5" aria-label="Segundos segurando o ar">
+<label for="b3">Soltar (s)</label><input id="b3" type="number" data-k="sol" min="1" max="30" step="0.5">
+<label><input type="checkbox" data-k="paOn"> Pausa depois de soltar (s)</label><input type="number" data-k="pa" min="1" max="20" step="0.5" aria-label="Segundos de pausa">
+<label for="b5">Ciclos (0 = sem limite)</label><input id="b5" type="number" data-k="ciclos" min="0" max="99">
+<label><input type="checkbox" data-k="voz"> Voz guia</label><span></span>
+<label><input type="checkbox" data-k="mus"> Música instrumental suave</label><span></span>
+<label for="b7">Volume da música (%)</label><input id="b7" type="range" data-k="vm" min="0" max="200">
+</div><p class="nota">A música é gerada no navegador. Ao começar, o app ouve o ambiente por 2 s (pede o microfone) e ajusta o volume para ~10% acima do ruído; use o controle acima para afinar.</p></details>
+</section>
+
+<section id="p3" hidden>
+<div class="card"><strong>Conta e sincronização</strong>
+<p class="nota" id="cs">Sem conta: seus dados ficam só neste aparelho.</p>
+<div id="cform"><div class="cfg"><label for="ce">E-mail</label><input id="ce" type="text" autocomplete="email"><label for="cp">Senha</label><input id="cp" type="password" autocomplete="current-password"></div>
+<p><button class="btn" id="cin">Entrar</button> <button class="btn sec" id="ccr">Criar conta</button></p></div>
+<div id="cok" hidden><p id="cu"></p>
+<label><input type="checkbox" data-k="nuvem"> Guardar meu histórico de leituras na nuvem (sem áudio)</label>
+<p class="nota">Para menores de idade, só com autorização do responsável. Quem for convidado para o seu espaço poderá ver este histórico. Os áudios nunca saem do aparelho.</p>
+<p><button class="btn sec" id="csy">Sincronizar agora</button> <button class="btn sec" id="cco">Convidar alguém</button> <button class="btn sec" id="csa">Sair</button></p>
+<input id="cl" type="text" readonly hidden aria-label="Link de convite" style="width:100%"></div>
+<p class="nota" id="cm"></p></div>
+</section>
+</main>
+
+<script type="module">
+const $=id=>document.getElementById(id);
+const ld=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}};
+const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const cfg=Object.assign({n:10,keep:3,zl:-30,zy:-15,zr:-6,gtema:'Variado',gmodo:'min',gval:1,gnivel:'Jovem e adulto',gtom:'Neutro',gfoco:'',gerr:false,gia:false,gurl:'',nuvem:false,ins:4,segOn:false,seg:4,sol:7,paOn:false,pa:2,ciclos:6,voz:true,mus:true,vm:100},ld('fono_cfg',{}));
+let hist=ld('fono_hist',[]);
+const DEF='O sol nasceu devagar sobre a cidade. Os pássaros começaram a cantar, e todo mundo acordou com um sorriso. Era o começo de um novo dia.';
+let texto=ld('fono_txt',DEF);
+function aba(n){[1,2,3].forEach(i=>{$('p'+i).hidden=n!==i;$('t'+i).setAttribute('aria-selected',n===i)})}
+[1,2,3].forEach(i=>$('t'+i).onclick=()=>aba(i));
+document.querySelectorAll('[data-k]').forEach(el=>{
+  const k=el.dataset.k;if(el.type==='checkbox')el.checked=!!cfg[k];else el.value=cfg[k];
+  el.addEventListener('input',()=>{cfg[k]=el.type==='checkbox'?el.checked:el.tagName==='SELECT'||el.type==='text'?el.value:parseFloat(el.value)||0;sv('fono_cfg',cfg);
+    if(k==='vm'&&mg)mg.gain.value=base*cfg.vm/100;if(k==='nuvem'&&cfg.nuvem)sincroniza();if(k==='n')grafico();if(k==='keep')listaAudio();if(k[0]==='z'){medidor(-60);histVol()}});
+});
+
+// ---- texto ----
+const norm=s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+const pals=t=>t.split(/\s+/).filter(Boolean);
+const fras=t=>t.split(/(?<=[.!?…])\s+/).filter(Boolean);
+const hid=()=>{let h=0;for(const c of norm(texto))h=(h*31+c.charCodeAt(0))|0;return h};
+function mostra(c){$('txt').innerHTML=pals(texto).map((p,i)=>{const t=c&&c.st[i];return `<span${t==='troc'?` class="x" title="Você disse: ${esc(c.tm[i]||'')}"`:t==='omit'?' class="o" title="Engolida"':''}>${esc(p)}</span>`}).join(' ')}
+$('ta').value=texto;mostra();
+$('ut').onclick=()=>{texto=$('ta').value.trim()||DEF;sv('fono_txt',texto);mostra();grafico();$('res').hidden=true;$('cmp').hidden=true};
+const BANCO={
+Natureza:["A manhã chegou com uma brisa fresca e cheiro de terra molhada. As folhas balançavam devagar, e a luz do sol atravessava os galhos como fios dourados. Ao longe, um rio seguia o seu caminho sem pressa, levando consigo o murmúrio das pedras.",
+"No fim da tarde, o céu ficou cor de laranja. Os pássaros voltaram aos ninhos, cantando baixinho, como quem conta o dia para os amigos. O vento diminuiu, e o silêncio se espalhou pelo campo, tranquilo e profundo.",
+"A chuva começou fina, quase tímida, e logo ganhou força. Cada gota batia no telhado num ritmo diferente, formando uma música que ninguém ensaiou. Depois da tempestade, o ar ficou limpo, e um arco-íris apareceu sobre as montanhas.",
+"À noite, a praia parecia outra. A lua desenhava um caminho de prata sobre o mar, e as ondas chegavam e partiam num vaivém constante. Sentado na areia, ele respirou fundo e percebeu como o mundo fica maior quando a gente escuta."],
+Cotidiano:["Toda manhã, Marta prepara o café antes de acordar a casa. O aroma se espalha pela cozinha e chama cada um para a mesa. Entre pães, risadas e pressa, o dia começa com a certeza de que ainda dá tempo de ser gentil.",
+"O ônibus estava cheio, mas ninguém reclamava. Alguém cedeu o lugar, outro segurou a sacola de um desconhecido, e a viagem passou mais leve. Pequenos gestos fazem a cidade parecer um lugar mais humano.",
+"Na feira, o vendedor chamava os fregueses pelo nome e sempre tinha uma história para contar. As frutas brilhavam nas bancas, e o cheiro de coentro e de pastel quente enchia o ar. Voltar para casa com sacolas pesadas era uma pequena felicidade.",
+"Depois do jantar, a família sentou na calçada para conversar. As crianças brincavam de pega-pega, e os mais velhos lembravam de tempos antigos. Ninguém olhava o relógio, porque aquele momento valia mais do que qualquer pressa."],
+Tecnologia:["A tecnologia deve servir às pessoas, e não o contrário. Um bom aplicativo é aquele que resolve um problema real, de forma simples, sem exigir manual. Quando alguém consegue usar sem medo de errar, o trabalho foi bem feito.",
+"Todo programa começa com uma ideia e um papel rabiscado. Depois vêm os testes, os erros, as correções e, de repente, algo funciona. Essa pequena vitória, repetida muitas vezes, é o que transforma uma ideia em um produto.",
+"Aprender a programar é como aprender a falar uma nova língua. No começo, as palavras parecem estranhas, e cada frase exige atenção. Com prática diária, a conversa com a máquina flui, e o que era difícil vira hábito.",
+"Na era digital, informação sobra, mas atenção é escassa. Por isso, saber explicar uma ideia com clareza, em poucas palavras e com boa voz, é uma habilidade valiosa. Quem comunica bem abre portas, em qualquer profissão."],
+Aventura:["O mapa estava rasgado nas pontas, mas o desenho era claro: uma trilha, uma ponte velha e, no fim, uma caverna escondida. Léo apertou a lanterna, respirou fundo e deu o primeiro passo. A aventura, afinal, só começa para quem se atreve.",
+"A ponte balançava sobre o abismo, e cada tábua rangia como uma advertência. Ana segurou a corda com firmeza e olhou para a frente, sem pensar no fundo. Do outro lado, a promessa de um segredo esperava por ela.",
+"Dentro da caverna, o eco devolvia cada passo com um atraso misterioso. A luz tremia nas paredes úmidas, revelando desenhos muito antigos. Alguém, há séculos, tinha passado ali e deixado um recado para quem viesse depois.",
+"Quando finalmente saíram da caverna, o sol já ia alto. Estavam cansados, sujos de barro e muito felizes. Descobriram que o maior tesouro não era o que procuravam, mas a coragem que encontraram pelo caminho."]};
+const emb=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+function gerar(){
+  const v=hist.map(e=>e.ppm).filter(Boolean),base=v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length):130;
+  const q=cfg.gval>0?cfg.gval:1,alvo=Math.round(cfg.gmodo==='min'?q*base:q);
+  const temas=cfg.gtema==='Variado'?emb(Object.keys(BANCO)):[cfg.gtema];
+  const pool=temas.flatMap(t=>emb(BANCO[t])),out=[];let n=0;
+  for(const p of pool){for(const f of fras(p)){out.push(f);n+=pals(f).length;if(n>=alvo)break}if(n>=alvo)break}
+  return{t:out.join(' '),n,base,curto:n<alvo*0.9};
+}
+$('gt').onclick=async()=>{
+  const v=hist.map(e=>e.ppm).filter(Boolean),base=v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length):130;
+  const q=cfg.gval>0?cfg.gval:1,alvo=Math.round(cfg.gmodo==='min'?q*base:q),min=n=>(n/base).toFixed(1).replace('.',',');
+  if(cfg.gia&&cfg.gurl){
+    $('gi').textContent='Gerando com IA...';$('gt').disabled=true;
+    try{
+      const erros=cfg.gerr?Object.entries(ld('fono_err',{})).sort((a,b)=>b[1]-a[1]).slice(0,10).map(e=>e[0]):[];
+      const r=await fetch(cfg.gurl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tema:cfg.gtema,palavras:alvo,nivel:cfg.gnivel,tom:cfg.gtom,foco:cfg.gfoco||'',dificeis:erros})});
+      const d=await r.json();if(!r.ok||!d.texto)throw new Error(d.erro||'falha');
+      $('ta').value=d.texto;$('ut').onclick();const n=pals(d.texto).length;
+      $('gi').textContent=`Texto gerado com IA: ${n} palavras (cerca de ${min(n)} min no ritmo de ${base} palavras/min).`;
+    }catch(e){
+      const r=gerar();$('ta').value=r.t;$('ut').onclick();
+      $('gi').textContent='Não consegui usar a IA agora ('+(e.message||'erro')+'). Gerei do banco de textos: '+r.n+' palavras.';
+    }
+    $('gt').disabled=false;return;
+  }
+  const r=gerar();$('ta').value=r.t;$('ut').onclick();
+  $('gi').textContent=`Texto gerado: ${r.n} palavras (cerca de ${min(r.n)} min no ritmo de ${r.base} palavras/min).`+(r.curto?' O banco deste tema acabou; use "Variado" para textos maiores.':'');
+};
+function compara(fala){
+  const w=pals(texto),tn=w.map(norm),sp0=fala.split(/\s+/).filter(Boolean),sp=sp0.map(norm),n=w.length,m=sp.length;
+  const eq=(i,j)=>tn[i]&&tn[i]===sp[j];
+  const D=Array.from({length:n+1},()=>new Uint16Array(m+1));
+  for(let i=0;i<=n;i++)D[i][0]=i;for(let j=0;j<=m;j++)D[0][j]=j;
+  for(let i=1;i<=n;i++)for(let j=1;j<=m;j++)D[i][j]=Math.min(D[i-1][j-1]+(eq(i-1,j-1)?0:1),D[i-1][j]+1,D[i][j-1]+1);
+  const st=Array(n).fill('ok'),tm={};let sub=[],omi=[];const ext=[];let i=n,j=m;
+  while(i>0||j>0){
+    if(i>0&&j>0&&D[i][j]===D[i-1][j-1]+(eq(i-1,j-1)?0:1)){if(!eq(i-1,j-1)){st[i-1]='troc';tm[i-1]=sp0[j-1];sub.push({i:i-1,de:w[i-1],para:sp0[j-1]})}i--;j--}
+    else if(i>0&&D[i][j]===D[i-1][j]+1){st[i-1]='omit';omi.push(i-1);i--}
+    else{ext.push(sp0[j-1]);j--}
+  }
+  tn.forEach((t,k)=>{if(!t)st[k]='ok'});
+  sub=sub.filter(x=>tn[x.i]).reverse();omi=omi.filter(k=>tn[k]).reverse();ext.reverse();
+  const certas=st.filter(x=>x==='ok').length;let idx=0,fr=0;const fs=fras(texto);
+  fs.forEach(f=>{const k=pals(f).length;let c=0;for(let q=0;q<k;q++)if(st[idx+q]==='ok')c++;idx+=k;if(c/k>=.7)fr++});
+  return{st,tm,sub,omi,ext,n,m,certas,fr,nf:fs.length};
+}
+function lista(c,tr){
+  const w=pals(texto),f=(arr,t)=>`<p class="msg"><b>${t} (${arr.length}):</b> ${arr.length?arr.join(' · '):'nenhuma'}</p>`;
+  return f(c.sub.map(x=>esc(x.de)+' → '+esc(x.para)),'Trocadas')+f(c.omi.map(k=>esc(w[k])),'Engolidas')+f(c.ext.map(esc),'Palavras a mais')+`<p class="nota">O app entendeu: “${esc(tr)}”</p>`;
+}
+
+// ---- gravação ----
+let ctx,an,stream,tick,frames=[],t0,gravando=false,transcr='',sr=null,mr,chunks=[];
+const cv=$('cv'),g=cv.getContext('2d');
+function tom(buf,rate){
+  let c0=0;for(let i=0;i<buf.length;i++)c0+=buf[i]*buf[i];const rms=Math.sqrt(c0/buf.length);
+  if(rms<0.012)return{rms,f:0};
+  const min=Math.floor(rate/450),max=Math.floor(rate/70);let best=-1,bc=0;
+  for(let l=min;l<=max;l++){let c=0;for(let i=0;i<buf.length-l;i++)c+=buf[i]*buf[i+l];if(c>bc){bc=c;best=l}}
+  return best<0||bc/c0<0.45?{rms,f:0}:{rms,f:rate/best};
+}
+function desenha(){
+  const W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.strokeStyle=css('--acc');g.lineWidth=3;g.beginPath();let on=false;
+  frames.slice(-200).forEach((p,i)=>{if(!p.f){on=false;return}const x=i/200*W,y=H-(Math.log2(p.f/70)/Math.log2(450/70))*H;if(!on){g.moveTo(x,y);on=true}else g.lineTo(x,y)});g.stroke();
+}
+async function iniciar(){
+  try{stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:false}})}
+  catch(e){$('st').textContent='Não foi possível usar o microfone. Permita o acesso e abra a página direto no navegador.';$('st').className='nota erro';return}
+  ctx=new (window.AudioContext||window.webkitAudioContext)();
+  const src=ctx.createMediaStreamSource(stream);an=ctx.createAnalyser();an.fftSize=2048;src.connect(an);
+  const buf=new Float32Array(an.fftSize);frames=[];transcr='';t0=performance.now();gravando=true;
+  $('rec').textContent='Parar';$('st').className='nota';$('st').textContent='Gravando... leia com calma.';
+  $('res').hidden=true;$('cmp').hidden=true;mostra();
+  tick=setInterval(()=>{an.getFloatTimeDomainData(buf);const r=tom(buf,ctx.sampleRate);frames.push({t:(performance.now()-t0)/1000,rms:r.rms,f:r.f});medidor(dbv(r.rms));desenha();histVol()},50);
+  try{chunks=[];mr=new MediaRecorder(stream);mr.ondataavailable=e=>chunks.push(e.data);mr.onstop=()=>salvaAudio(new Blob(chunks,{type:mr.mimeType}));mr.start()}catch(e){mr=null}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(SR){try{sr=new SR();sr.lang='pt-BR';sr.continuous=true;sr.interimResults=false;sr.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++)transcr+=e.results[i][0].transcript+' '};sr.onerror=()=>{};sr.start()}catch(e){sr=null}}
+}
+function parar(){
+  gravando=false;clearInterval(tick);if(sr){try{sr.stop()}catch(e){}}if(mr&&mr.state!=='inactive')mr.stop();
+  stream.getTracks().forEach(t=>t.stop());ctx.close();$('rec').textContent='Gravar de novo';pico=-60;medidor(-60);setTimeout(analisa,600);
+}
+const fmt=v=>v==null?'—':String(v).replace('.',',');
+function analisa(){
+  const voz=frames.map(p=>p.rms>0.015),ini=voz.indexOf(true),fim=voz.lastIndexOf(true);
+  if(ini<0||frames[frames.length-1].t<2){$('st').textContent='Quase não captei voz. Chegue mais perto do microfone e tente de novo.';return}
+  let pausas=0,run=0;const pl=[];
+  for(let i=ini;i<=fim;i++){if(!voz[i])run++;else{if(run>=8){pausas++;pl.push((run*0.05).toFixed(1).replace('.',','))}run=0}}
+  const fala=frames[fim].t-frames[ini].t;
+  const fs=frames.filter(p=>p.f).map(p=>p.f);let expr=0;
+  if(fs.length>10){const md=fs.slice().sort((a,b)=>a-b)[fs.length>>1],st=fs.map(f=>12*Math.log2(f/md)),mu=st.reduce((a,b)=>a+b,0)/st.length;expr=Math.sqrt(st.reduce((a,b)=>a+(b-mu)**2,0)/st.length)}
+  const R=frames.map(p=>p.rms);let sil=0;
+  for(let i=3;i<R.length-3;i++){const a=R[i];if(a<0.02)continue;let mx=true,mn=a;for(let d=-3;d<=3;d++){if(R[i+d]>a)mx=false;mn=Math.min(mn,R[i+d])}if(mx&&a-mn>0.008){sil++;i+=2}}
+  const vs=R.filter((a,i)=>voz[i]),mr_=vs.reduce((a,b)=>a+b,0)/vs.length;
+  const dv=vs.map(dbv),zi=Math.round(dv.filter(d=>d>=cfg.zl&&d<cfg.zy).length/dv.length*100),zv=Math.round(dv.filter(d=>d>=cfg.zr).length/dv.length*100);
+  const tr=transcr.trim(),cmp=tr?compara(tr):null,pal=tr?tr.split(/\s+/).length:0;
+  const r={t:Date.now(),h:hid(),tx:texto.slice(0,24),dur:Math.round(fala),ppm:pal?Math.round(pal/(fala/60)):null,sps:Math.round(sil/fala*10)/10,pausas,expr:Math.round(expr*10)/10,vdb:Math.round(20*Math.log10(mr_)*10)/10,pc:cmp?Math.round(cmp.certas/cmp.n*100):null,zi,zv};
+  const ant=hist.length?hist[hist.length-1]:null;hist.push(r);hist=hist.slice(-300);sv('fono_hist',hist);
+  const med=k=>{const v=hist.map(e=>e[k]).filter(a=>a!=null);return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length*10)/10:null};
+  const L=[['Tempo de fala (s)','dur'],['Ritmo (palavras/min)','ppm'],['Sílabas por segundo (estimado)','sps'],['Pausas','pausas'],['Expressividade do tom','expr'],['Volume médio (dBFS)','vdb'],['Palavras certas (%)','pc'],['Tempo na faixa boa (%)','zi'],['Tempo no vermelho (%)','zv']];
+  const esp=Math.max(0,(texto.match(/[,.;:!?…]/g)||[]).length-1);$('thm').textContent='Média ('+hist.length+')';
+  $('tb').innerHTML=L.map(([n,k])=>`<tr><td>${n}</td><td>${fmt(r[k])}${seta(k,r[k],ant&&ant[k],esp)}</td><td>${fmt(ant&&ant[k])}</td><td>${fmt(med(k))}</td></tr>`).join('');
+  $('pn').textContent=`Pausas de 0,4 s ou mais: ${pl.length?pl.join(' s · ')+' s':'nenhuma'}. A pontuação do texto pedia cerca de ${esp}.`;
+  let fb=expr<1.5?'Seu tom ficou bem uniforme. Escolha uma frase para "subir" e outra para "descer" a voz.':expr<3?'Boa variação de tom. Dê mais ênfase às palavras importantes.':'Sua leitura teve bastante vida no tom. Agora refine as pausas.';
+  if(pausas<esp)fb+=' Respire nas vírgulas e nos pontos.';
+  if(r.vdb<-35)fb+=' A voz ficou baixa para o microfone; projete um pouco mais.';else if(r.vdb>-12)fb+=' A voz ficou muito forte e pode distorcer; afaste um pouco o microfone.';
+  if(r.sps>6.5)fb+=' O ritmo está acelerado; leia um pouco mais devagar.';
+  if(zv>5)fb+=' Em parte da leitura a voz passou do limite alto; relaxe a projeção nesses trechos.';
+  if(ant&&(r.expr>ant.expr||r.pausas>ant.pausas))fb='Você evoluiu em relação à última vez. '+fb;
+  $('fb').textContent=fb;$('res').hidden=false;
+  if(cmp){mostra(cmp);
+    const em=ld('fono_err',{});pals(texto).forEach((w,i)=>{if(cmp.st[i]&&cmp.st[i]!=='ok'){const c=w.replace(/[^\p{L}\p{N}-]/gu,'').toLowerCase();if(c.length>2)em[c]=(em[c]||0)+1}});sv('fono_err',em);
+    $('cb').innerHTML=[['Palavras no texto',cmp.n],['Palavras lidas certas',cmp.certas],['Palavras trocadas',cmp.sub.length],['Palavras engolidas',cmp.omi.length],['Palavras a mais',cmp.ext.length],['Frases no texto',cmp.nf],['Frases lidas corretamente',cmp.fr]].map(([a,b])=>`<tr><td>${a}</td><td>${b}</td></tr>`).join('');
+    $('cd').innerHTML=lista(cmp,tr);$('cn').textContent='No texto: vermelho sublinhado = palavra trocada (a lista acima mostra por qual); laranja riscado = palavra engolida.'}
+  else{$('cb').innerHTML='';$('cd').innerHTML='';$('cn').textContent='A comparação com o texto precisa do reconhecimento de fala (Chrome, abrindo a página por https).'}
+  $('cmp').hidden=false;$('st').textContent='Pronto. Veja o resultado abaixo.';grafico();histo();if(appD&&cfg.nuvem)sincroniza();
+}
+$('rec').onclick=()=>gravando?parar():iniciar();
+
+// ---- gráfico ----
+function grafico(){
+  const k=$('gm').value,c=$('gc'),x=c.getContext('2d'),W=c.width,H=c.height;x.clearRect(0,0,W,H);
+  const arr=hist.filter(e=>e.h===hid()).slice(-cfg.n),v=arr.map(e=>e[k]);
+  if(arr.length<2){$('gn').textContent='Faça pelo menos 2 leituras deste texto para ver o gráfico.';return}
+  const nums=v.filter(a=>a!=null);$('gn').textContent=arr.length+' leitura(s) deste texto';if(!nums.length)return;
+  const lo=Math.min(...nums),hi=Math.max(...nums),rg=hi-lo||1,P=(a,i)=>[24+i*(W-48)/(v.length-1),H-30-((a-lo)/rg)*(H-60)];
+  x.strokeStyle=css('--acc');x.fillStyle=css('--acc');x.lineWidth=3;x.beginPath();let on=false;
+  v.forEach((a,i)=>{if(a==null){on=false;return}const[px,py]=P(a,i);if(on)x.lineTo(px,py);else{x.moveTo(px,py);on=true}});x.stroke();
+  x.font='12px sans-serif';x.textAlign='center';
+  v.forEach((a,i)=>{if(a==null)return;const[px,py]=P(a,i);x.fillStyle=css('--acc');x.beginPath();x.arc(px,py,4,0,7);x.fill();x.fillStyle=css('--ink');x.fillText(fmt(a),px,py-9)});
+}
+$('gm').onchange=grafico;grafico();
+
+// ---- medidor de volume (estilo mesa de som) ----
+function dbv(r){return r>0?Math.max(-60,20*Math.log10(r)):-60}
+const zonas=()=>[[-60,cfg.zl,'#8a97ad'],[cfg.zl,cfg.zy,'#0d9b6a'],[cfg.zy,cfg.zr,'#e8b40e'],[cfg.zr,0,'#d6452f']];
+const corZ=d=>d>=cfg.zr?'#d6452f':d>=cfg.zy?'#e8b40e':d>=cfg.zl?'#0d9b6a':'#8a97ad';
+let pico=-60,pT=0;
+function medidor(d){
+  const c=$('mt'),x=c.getContext('2d'),W=c.width,H=c.height,X=v=>(v+60)/60*W,n=performance.now();x.clearRect(0,0,W,H);
+  zonas().forEach(([a,b,col])=>{x.globalAlpha=.22;x.fillStyle=col;x.fillRect(X(a),0,X(b)-X(a),H)});
+  x.globalAlpha=1;x.fillStyle=corZ(d);x.fillRect(0,4,Math.max(0,X(d)),H-8);
+  if(d>=pico){pico=d;pT=n}else if(n-pT>1200)pico=Math.max(d,pico-1.5);
+  x.fillStyle=css('--ink');x.fillRect(X(pico)-1,0,3,H);
+}
+function histVol(){
+  const c=$('vc'),x=c.getContext('2d'),W=c.width,H=c.height,Y=v=>H-(v+60)/60*H;x.clearRect(0,0,W,H);
+  zonas().forEach(([a,b,col])=>{x.globalAlpha=.2;x.fillStyle=col;x.fillRect(0,Y(b),W,Y(a)-Y(b))});
+  x.globalAlpha=1;x.lineWidth=2;const P=frames.slice(-200);
+  P.forEach((p,i)=>{if(!i)return;const d=dbv(p.rms);x.strokeStyle=corZ(d);x.beginPath();x.moveTo((i-1)/200*W,Y(dbv(P[i-1].rms)));x.lineTo(i/200*W,Y(d));x.stroke()});
+}
+medidor(-60);histVol();
+
+// ---- setas e histórico ----
+function seta(k,a,b,esp){
+  if(a==null||b==null)return'';
+  const d=a-b,tol=Math.max(Math.abs(b)*0.03,0.05);
+  if(Math.abs(d)<=tol)return'<span class="ar" aria-label="manteve">●</span>';
+  const up=d>0;let s=0;
+  if(k==='expr'||k==='pc'||k==='zi')s=up?1:-1;else if(k==='zv')s=up?-1:1;
+  else if(k==='pausas')s=Math.abs(a-esp)<Math.abs(b-esp)?1:Math.abs(a-esp)>Math.abs(b-esp)?-1:0;
+  else{const R={ppm:[110,160],sps:[3.5,6],vdb:[-30,-15]}[k];if(R){const f=v=>v<R[0]?R[0]-v:v>R[1]?v-R[1]:0;s=f(a)<f(b)?1:f(a)>f(b)?-1:0}}
+  return `<span class="ar ${s>0?'ok':s<0?'ru':''}" aria-label="${up?'subiu':'caiu'}">${up?'▲':'▼'}</span>`;
+}
+function histo(){
+  $('hb').innerHTML=hist.slice().reverse().map(e=>`<tr><td>${new Date(e.t).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</td><td>${esc(e.tx||'—')}</td><td>${fmt(e.dur)}</td><td>${fmt(e.ppm)}</td><td>${fmt(e.sps)}</td><td>${fmt(e.pausas)}</td><td>${fmt(e.expr)}</td><td>${fmt(e.vdb)}</td><td>${fmt(e.pc)}</td></tr>`).join('');
+  $('hn').textContent=hist.length+' leitura(s) guardadas (até 300).';
+}
+$('hclr').onclick=async()=>{if(confirm('Apagar todo o histórico de leituras'+(appD&&cfg.nuvem?' (inclusive na nuvem)':'')+'?')){hist=[];sv('fono_hist',hist);sv('fono_err',{});histo();grafico();if(appD&&cfg.nuvem){try{await appD.salvar('historico',[]);await appD.salvar('erros',[])}catch(e){}}}};
+$('sbt').onclick=()=>{const h=($('sob').hidden=!$('sob').hidden);$('sbt').setAttribute('aria-expanded',String(!h))};
+histo();
+
+// ---- falas guardadas (IndexedDB) ----
+const db=()=>new Promise((res,rej)=>{const r=indexedDB.open('fono',1);r.onupgradeneeded=()=>r.result.createObjectStore('r',{keyPath:'id'});r.onsuccess=()=>res(r.result);r.onerror=rej});
+async function store(mode,fn){const d=await db();return new Promise((res,rej)=>{const t=d.transaction('r',mode),q=fn(t.objectStore('r'));t.oncomplete=()=>res(q&&q.result);t.onerror=rej})}
+async function salvaAudio(blob){if(!cfg.keep)return;try{await store('readwrite',s=>s.put({id:Date.now(),blob}))}catch(e){}listaAudio()}
+async function listaAudio(){
+  try{let l=(await store('readonly',s=>s.getAll()))||[];l.sort((a,b)=>b.id-a.id);
+    for(const o of l.slice(cfg.keep))await store('readwrite',s=>s.delete(o.id));
+    l=l.slice(0,cfg.keep);$('ag').textContent=l.length?'':'Nenhuma fala guardada ainda.';
+    l.forEach(o=>{const d=document.createElement('div');d.innerHTML=`<div class="nota">${new Date(o.id).toLocaleString('pt-BR')}</div>`;const a=document.createElement('audio');a.controls=true;a.src=URL.createObjectURL(o.blob);a.style.width='100%';d.appendChild(a);$('ag').appendChild(d)})}
+  catch(e){$('ag').textContent='Não foi possível guardar áudio neste navegador.'}
+}
+$('apg').onclick=async()=>{try{await store('readwrite',s=>s.clear())}catch(e){}listaAudio()};listaAudio();
+
+// ---- respiração guiada ----
+let run=false,tm,iv,mctx,mg,mint,base=.3;const orb=$('orb');
+const fases=()=>{const f=[['Inspire pelo nariz','Inspire',cfg.ins,1.1]];if(cfg.segOn)f.push(['Segure o ar','Segure',cfg.seg,null]);f.push(['Solte devagar pela boca','Solte devagar',cfg.sol,.55]);if(cfg.paOn)f.push(['Descanse','Descanse',cfg.pa,null]);return f};
+function fala(t){if(cfg.voz&&window.speechSynthesis){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='pt-BR';u.rate=.85;speechSynthesis.speak(u)}}
+function passo(fs,i,c){
+  if(!run)return;
+  if(i>=fs.length){c++;$('ciclos').textContent=c+' ciclo(s) completo(s)';if(cfg.ciclos&&c>=cfg.ciclos){fim(true);return}i=0}
+  const[txt,voz,seg,esc_]=fs[i];$('fase').textContent=txt;fala(voz);
+  orb.style.transition=`transform ${seg}s ease-in-out`;if(esc_)orb.style.transform=`scale(${esc_})`;
+  let s=Math.ceil(seg);$('cont').textContent=s;clearInterval(iv);iv=setInterval(()=>{s--;$('cont').textContent=s>0?s:''},1000);
+  tm=setTimeout(()=>passo(fs,i+1,c),seg*1000);
+}
+async function musica(){
+  let amb=0.01;$('fase').textContent='Ouvindo o ambiente...';
+  try{const st=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+    const c=new AudioContext(),a=c.createAnalyser(),b=new Float32Array(2048),v=[];c.createMediaStreamSource(st).connect(a);
+    await new Promise(r=>{let n=0;const q=setInterval(()=>{a.getFloatTimeDomainData(b);v.push(Math.sqrt(b.reduce((s,x)=>s+x*x,0)/b.length));if(++n>=20){clearInterval(q);r()}},100)});
+    amb=v.reduce((s,x)=>s+x,0)/v.length;st.getTracks().forEach(t=>t.stop());c.close()}catch(e){}
+  if(!run)return;
+  base=Math.min(.2,Math.max(.02,amb*1.1))/.07;
+  mctx=new AudioContext();mg=mctx.createGain();mg.gain.value=base*cfg.vm/100;
+  const lp=mctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=900;mg.connect(lp);lp.connect(mctx.destination);
+  const ac=[[220,261.6,329.6,392],[174.6,220,261.6,329.6],[261.6,329.6,392,493.9],[196,246.9,293.7,392]];let k=0;
+  const toca=()=>{const t=mctx.currentTime;ac[k++%4].forEach(f=>{const o=mctx.createOscillator(),e=mctx.createGain();o.frequency.value=f;e.gain.setValueAtTime(0,t);e.gain.linearRampToValueAtTime(.05,t+3);e.gain.linearRampToValueAtTime(0,t+9);o.connect(e);e.connect(mg);o.start(t);o.stop(t+9.1)})};
+  toca();mint=setInterval(toca,7000);
+}
+function fim(ok){
+  run=false;clearTimeout(tm);clearInterval(iv);clearInterval(mint);if(window.speechSynthesis)speechSynthesis.cancel();
+  if(mctx){mctx.close();mctx=null;mg=null}$('rgo').textContent='Começar';$('cont').textContent='';
+  $('fase').textContent=ok?'Muito bem!':'Pronto?';orb.style.transition='transform 1s';orb.style.transform='scale(.55)';
+}
+$('rgo').onclick=async()=>{
+  if(run){fim(false);return}
+  run=true;$('rgo').textContent='Parar';$('ciclos').textContent='';
+  if(cfg.mus)await musica();
+  passo(fases(),0,0);
+};
+
+// ---- conta e sincronização (fenix-core) ----
+// Endereço do fenix-core.js (nome fixo). Ajuste para o endereço real, uma vez só.
+const CORE_URL='./fenix-core.js';
+let core=null,authM=null,empM=null,convM=null,dbC=null,appD=null,sessao=null;
+const msgC=e=>({'auth/invalid-credential':'E-mail ou senha incorretos','auth/email-already-in-use':'Este e-mail já tem conta','auth/weak-password':'Senha fraca (mínimo de 6 caracteres)','auth/invalid-email':'E-mail inválido','auth/missing-password':'Digite a senha'}[e.code]||e.code||e.message);
+function mostraConta(){
+  $('cform').hidden=!!sessao;$('cok').hidden=!sessao;
+  $('cs').textContent=sessao?'Conectado.':'Sem conta: seus dados ficam só neste aparelho.';
+  if(sessao){$('cu').textContent=sessao.email+' ('+sessao.papel+')';$('cco').hidden=sessao.papel!=='dono'}
+}
+async function entrou(u){
+  if(!u){sessao=null;appD=null;mostraConta();return}
+  try{
+    let v=await empM.obterEmpresaDoUsuario(u.uid);
+    const tk=new URLSearchParams(location.search).get('convite');
+    if(!v&&tk){await convM.aceitarConvite(tk,u.uid,u.email);v=await empM.obterEmpresaDoUsuario(u.uid);history.replaceState(null,'',location.pathname)}
+    if(!v){await empM.criarEmpresa(u.uid,u.email,'Espaço de '+u.email);v=await empM.obterEmpresaDoUsuario(u.uid)}
+    sessao={uid:u.uid,email:u.email,empresaId:v.empresaId,papel:v.papel};
+    appD=core.criarModuloAppData(dbC,v.empresaId,'fenix-fono');
+    mostraConta();if(cfg.nuvem)await sincroniza();
+  }catch(e){$('cm').textContent='Não consegui abrir o seu espaço: '+(e.code||e.message)}
+}
+async function sincroniza(){
+  if(!appD||!cfg.nuvem)return;
+  try{
+    const nuv=(await appD.carregar('historico'))||[],mapa=new Map();
+    [...nuv,...hist].forEach(e=>mapa.set(e.t,e));
+    hist=[...mapa.values()].sort((a,b)=>a.t-b.t).slice(-300);sv('fono_hist',hist);
+    if(!(await appD.salvar('historico',hist)))throw new Error('sem permissão para salvar (confira as regras do Firestore)');
+    const en=(await appD.carregar('erros'))||[],em=ld('fono_err',{});
+    en.forEach(x=>{em[x.w]=Math.max(em[x.w]||0,x.c)});sv('fono_err',em);
+    await appD.salvar('erros',Object.entries(em).map(([w,c])=>({w,c})));
+    histo();grafico();$('cm').textContent='Sincronizado às '+new Date().toLocaleTimeString('pt-BR');
+  }catch(e){$('cm').textContent='Falha ao sincronizar: '+(e.code||e.message)}
+}
+$('cin').onclick=async()=>{if(!authM)return;try{await authM.entrar($('ce').value.trim(),$('cp').value);$('cm').textContent=''}catch(e){$('cm').textContent=msgC(e)}};
+$('ccr').onclick=async()=>{if(!authM)return;try{await authM.criarConta($('ce').value.trim(),$('cp').value);$('cm').textContent=''}catch(e){$('cm').textContent=msgC(e)}};
+$('csa').onclick=()=>authM&&authM.sair();
+$('csy').onclick=()=>{if(!cfg.nuvem){$('cm').textContent='Marque a opção de guardar o histórico na nuvem para sincronizar.';return}sincroniza()};
+$('cco').onclick=async()=>{try{const r=await convM.criarConvite(sessao.empresaId,sessao.uid,sessao.email,null);const i=$('cl');i.value=r.link;i.hidden=false;i.select();$('cm').textContent='Envie este link para a pessoa. Ela entra no seu espaço e poderá ver o histórico.'}catch(e){$('cm').textContent='Não consegui criar o convite: '+(e.code||e.message)}};
+async function iniciaCore(){
+  try{
+    core=(await import(CORE_URL)).FenixCore;core.init('fenix-fono');
+    const {app,db}=core.initFirebase();dbC=db;
+    authM=core.criarModuloAuth(app);empM=core.criarModuloEmpresas(db);convM=core.criarModuloConvites(db,location.origin+location.pathname);
+    authM.aoMudarEstado(entrou);
+  }catch(e){$('cs').textContent='Conta indisponível agora (sem conexão ou core não encontrado). O app funciona só neste aparelho.';$('cform').hidden=true}
+}
+iniciaCore();
+</script>
+</body>
+</html>
