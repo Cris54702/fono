@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Fênix Fono 1.7</title>
+<title>Fênix Fono 1.9</title>
 <style>
 :root{--bg:#f3f6fa;--card:#fff;--ink:#14213d;--mut:#5b6b85;--line:#d9e1ec;--acc:#e8870e;--acc2:#0d8f84;--err:#c0392b;--ok:#0d8f84;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1626;--card:#16223a;--ink:#eaf0fa;--mut:#98a8c4;--line:#27375a;--acc:#f5a03a;--acc2:#35c2b4;--err:#ff8a78;--ok:#35c2b4}}
@@ -41,15 +41,15 @@ details summary{cursor:pointer;font-weight:700}
 </head>
 <body>
 <main>
-<h1>Fênix Fono 1.7</h1>
+<h1>Fênix Fono 1.9</h1>
 <p class="sub">Treino de voz e leitura. Você compete só com a sua última vez.</p>
-<nav role="tablist"><button role="tab" id="t1" aria-selected="true">Leitura</button><button role="tab" id="t2" aria-selected="false">Respiração</button><button role="tab" id="t3" aria-selected="false">Conta</button></nav>
+<nav role="tablist"><button role="tab" id="t1" aria-selected="true">Leitura</button><button role="tab" id="t2" aria-selected="false">Respiração</button><button role="tab" id="t4" aria-selected="false">Guiado</button><button role="tab" id="t3" aria-selected="false">Conta</button></nav>
 
 <section id="p1">
 <div class="card"><p class="texto" id="txt"></p>
 <details><summary class="nota">Gerar ou trocar o texto</summary>
 <div class="cfg">
-<label for="g1">Tema</label><select id="g1" data-k="gtema"><option>Variado</option><option>Natureza</option><option>Cotidiano</option><option>Tecnologia</option><option>Aventura</option></select>
+<label for="g1">Tema</label><select id="g1" data-k="gtema"><option>Variado</option><option>Natureza</option><option>Cotidiano</option><option>Tecnologia</option><option>Aventura</option><option>Trava-línguas</option></select>
 <label for="g2">Tamanho em</label><select id="g2" data-k="gmodo"><option value="min">minutos de leitura</option><option value="pal">palavras</option></select>
 <label for="g3">Quantidade</label><input id="g3" type="number" data-k="gval" min="1" max="2000" step="0.5">
 <label for="g4">Nível</label><select id="g4" data-k="gnivel"><option>Criança (6 a 9 anos)</option><option>Pré-adolescente (10 a 13 anos)</option><option>Jovem e adulto</option></select>
@@ -117,6 +117,22 @@ details summary{cursor:pointer;font-weight:700}
 </div><p class="nota">A música é gerada no navegador. Ao começar, o app ouve o ambiente por 2 s (pede o microfone) e ajusta o volume para ~10% acima do ruído; use o controle acima para afinar.</p></details>
 </section>
 
+<section id="p4" hidden>
+<div class="card"><strong>Treino guiado</strong>
+<p class="nota">O app fala uma frase do texto atual, você repete, e ele mostra o que foi trocado ou engolido. Para trava-línguas, escolha o tema "Trava-línguas" em "Gerar ou trocar o texto", na aba Leitura.</p>
+<label><input type="checkbox" data-k="gentil"> Modo sem pressão</label>
+<p class="nota">Desligado (padrão): o app só avança quando você bate a meta, sem limite de tentativas. Ligado: há um limite de tentativas por frase, a voz repete mais devagar, as mensagens são de incentivo, o app mostra a sua melhora e deixa as frases difíceis para rever depois.</p>
+<p class="texto" id="gf">—</p><p class="nota" id="gp"></p>
+<p><button class="btn" id="gst">Começar treino guiado</button></p>
+<p><button class="btn sec" id="gou">Ouvir a frase</button> <button class="btn sec" id="gre">Repetir agora</button> <button class="btn sec" id="gan">Anterior</button> <button class="btn sec" id="gpx">Próxima</button></p>
+<div id="gr"></div></div>
+<details class="card"><summary>Configurações do treino</summary><div class="cfg">
+<label for="m1">Acerto para avançar (%)</label><input id="m1" type="number" data-k="meta" min="50" max="100">
+<label for="m3">Tentativas por frase (modo sem pressão)</label><input id="m3" type="number" data-k="maxt" min="1" max="10">
+<label for="m2">Velocidade da voz (%)</label><input id="m2" type="number" data-k="vel" min="50" max="120">
+<label><input type="checkbox" data-k="auto"> Avançar sozinho ao atingir a meta</label><span></span></div></details>
+</section>
+
 <section id="p3" hidden>
 <div class="card"><strong>Conta e sincronização</strong>
 <p class="nota" id="cs">Sem conta: seus dados ficam só neste aparelho.</p>
@@ -137,12 +153,12 @@ const ld=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?
 const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
 const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-const cfg=Object.assign({n:10,keep:3,zl:-30,zy:-15,zr:-6,gtema:'Variado',gmodo:'min',gval:1,gnivel:'Jovem e adulto',gtom:'Neutro',gfoco:'',gerr:false,gia:false,gurl:'',nuvem:false,ins:4,segOn:false,seg:4,sol:7,paOn:false,pa:2,ciclos:6,voz:true,mus:true,vm:100},ld('fono_cfg',{}));
+const cfg=Object.assign({n:10,keep:3,zl:-30,zy:-15,zr:-6,gtema:'Variado',gmodo:'min',gval:1,gnivel:'Jovem e adulto',gtom:'Neutro',gfoco:'',gerr:false,gia:false,gurl:'',nuvem:false,meta:85,maxt:3,vel:85,auto:true,gentil:false,ins:4,segOn:false,seg:4,sol:7,paOn:false,pa:2,ciclos:6,voz:true,mus:true,vm:100},ld('fono_cfg',{}));
 let hist=ld('fono_hist',[]);
 const DEF='O sol nasceu devagar sobre a cidade. Os pássaros começaram a cantar, e todo mundo acordou com um sorriso. Era o começo de um novo dia.';
 let texto=ld('fono_txt',DEF);
-function aba(n){[1,2,3].forEach(i=>{$('p'+i).hidden=n!==i;$('t'+i).setAttribute('aria-selected',n===i)})}
-[1,2,3].forEach(i=>$('t'+i).onclick=()=>aba(i));
+function aba(n){[1,2,3,4].forEach(i=>{$('p'+i).hidden=n!==i;$('t'+i).setAttribute('aria-selected',n===i)});if(n===4)gMostra()}
+[1,2,3,4].forEach(i=>$('t'+i).onclick=()=>aba(i));
 document.querySelectorAll('[data-k]').forEach(el=>{
   const k=el.dataset.k;if(el.type==='checkbox')el.checked=!!cfg[k];else el.value=cfg[k];
   el.addEventListener('input',()=>{cfg[k]=el.type==='checkbox'?el.checked:el.tagName==='SELECT'||el.type==='text'?el.value:parseFloat(el.value)||0;sv('fono_cfg',cfg);
@@ -154,7 +170,8 @@ const norm=s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').re
 const pals=t=>t.split(/\s+/).filter(Boolean);
 const fras=t=>t.split(/(?<=[.!?…])\s+/).filter(Boolean);
 const hid=()=>{let h=0;for(const c of norm(texto))h=(h*31+c.charCodeAt(0))|0;return h};
-function mostra(c){$('txt').innerHTML=pals(texto).map((p,i)=>{const t=c&&c.st[i];return `<span${t==='troc'?` class="x" title="Você disse: ${esc(c.tm[i]||'')}"`:t==='omit'?' class="o" title="Engolida"':''}>${esc(p)}</span>`}).join(' ')}
+function marca(T,c){return pals(T).map((p,i)=>{const t=c&&c.st[i];return `<span${t==='troc'?` class="x" title="Você disse: ${esc(c.tm[i]||'')}"`:t==='omit'?' class="o" title="Engolida"':''}>${esc(p)}</span>`}).join(' ')}
+function mostra(c){$('txt').innerHTML=marca(texto,c)}
 $('ta').value=texto;mostra();
 $('ut').onclick=()=>{texto=$('ta').value.trim()||DEF;sv('fono_txt',texto);mostra();grafico();$('res').hidden=true;$('cmp').hidden=true};
 const BANCO={
@@ -170,6 +187,7 @@ Tecnologia:["A tecnologia deve servir às pessoas, e não o contrário. Um bom a
 "Todo programa começa com uma ideia e um papel rabiscado. Depois vêm os testes, os erros, as correções e, de repente, algo funciona. Essa pequena vitória, repetida muitas vezes, é o que transforma uma ideia em um produto.",
 "Aprender a programar é como aprender a falar uma nova língua. No começo, as palavras parecem estranhas, e cada frase exige atenção. Com prática diária, a conversa com a máquina flui, e o que era difícil vira hábito.",
 "Na era digital, informação sobra, mas atenção é escassa. Por isso, saber explicar uma ideia com clareza, em poucas palavras e com boa voz, é uma habilidade valiosa. Quem comunica bem abre portas, em qualquer profissão."],
+'Trava-línguas':["O rato roeu a roupa do rei de Roma.","Três pratos de trigo para três tigres tristes.","A aranha arranha a rã. A rã arranha a aranha. Nem a aranha arranha a rã, nem a rã arranha a aranha.","O peito do pé de Pedro é preto. Quem disser que o peito do pé de Pedro é preto tem o peito do pé mais preto que o peito do pé de Pedro.","Num ninho de mafagafos há sete mafagafinhos. Quem os desmafagafizar bom desmafagafizador será.","O tempo perguntou ao tempo quanto tempo o tempo tem. O tempo respondeu ao tempo que o tempo tem tanto tempo quanto tempo o tempo tem.","O sabiá não sabia que o sábio sabia que o sabiá não sabia assobiar.","Se o papa papasse papa, se o papa papasse pão, se o papa tudo papasse, seria um papa-papão.","A vaca malhada foi molhada por outra vaca molhada e malhada.","O doce perguntou ao doce qual é o doce mais doce. O doce respondeu ao doce que o doce mais doce é o doce de batata-doce.","Disseram que na minha rua tem paralelepípedo feito de paralelogramos. Seis paralelogramos tem um paralelepípedo. Mil paralelepípedos tem uma paralelepipedovia.","Pedro Paulo Pereira Pinto, pequeno pintor português, pintava portas, paredes e portais."],
 Aventura:["O mapa estava rasgado nas pontas, mas o desenho era claro: uma trilha, uma ponte velha e, no fim, uma caverna escondida. Léo apertou a lanterna, respirou fundo e deu o primeiro passo. A aventura, afinal, só começa para quem se atreve.",
 "A ponte balançava sobre o abismo, e cada tábua rangia como uma advertência. Ana segurou a corda com firmeza e olhou para a frente, sem pensar no fundo. Do outro lado, a promessa de um segredo esperava por ela.",
 "Dentro da caverna, o eco devolvia cada passo com um atraso misterioso. A luz tremia nas paredes úmidas, revelando desenhos muito antigos. Alguém, há séculos, tinha passado ali e deixado um recado para quem viesse depois.",
@@ -178,9 +196,9 @@ const emb=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.
 function gerar(){
   const v=hist.map(e=>e.ppm).filter(Boolean),base=v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length):130;
   const q=cfg.gval>0?cfg.gval:1,alvo=Math.round(cfg.gmodo==='min'?q*base:q);
-  const temas=cfg.gtema==='Variado'?emb(Object.keys(BANCO)):[cfg.gtema];
+  const temas=cfg.gtema==='Variado'?emb(Object.keys(BANCO).filter(k=>k!=='Trava-línguas')):[cfg.gtema];
   const pool=temas.flatMap(t=>emb(BANCO[t])),out=[];let n=0;
-  for(const p of pool){for(const f of fras(p)){out.push(f);n+=pals(f).length;if(n>=alvo)break}if(n>=alvo)break}
+  for(const p of pool){if(cfg.gtema==='Trava-línguas'){out.push(p);n+=pals(p).length;if(n>=alvo)break;continue}for(const f of fras(p)){out.push(f);n+=pals(f).length;if(n>=alvo)break}if(n>=alvo)break}
   return{t:out.join(' '),n,base,curto:n<alvo*0.9};
 }
 $('gt').onclick=async()=>{
@@ -203,8 +221,8 @@ $('gt').onclick=async()=>{
   const r=gerar();$('ta').value=r.t;$('ut').onclick();
   $('gi').textContent=`Texto gerado: ${r.n} palavras (cerca de ${min(r.n)} min no ritmo de ${r.base} palavras/min).`+(r.curto?' O banco deste tema acabou; use "Variado" para textos maiores.':'');
 };
-function compara(fala){
-  const w=pals(texto),tn=w.map(norm),sp0=fala.split(/\s+/).filter(Boolean),sp=sp0.map(norm),n=w.length,m=sp.length;
+function compara(fala,T=texto){
+  const w=pals(T),tn=w.map(norm),sp0=fala.split(/\s+/).filter(Boolean),sp=sp0.map(norm),n=w.length,m=sp.length;
   const eq=(i,j)=>tn[i]&&tn[i]===sp[j];
   const D=Array.from({length:n+1},()=>new Uint16Array(m+1));
   for(let i=0;i<=n;i++)D[i][0]=i;for(let j=0;j<=m;j++)D[0][j]=j;
@@ -217,17 +235,17 @@ function compara(fala){
   }
   tn.forEach((t,k)=>{if(!t)st[k]='ok'});
   sub=sub.filter(x=>tn[x.i]).reverse();omi=omi.filter(k=>tn[k]).reverse();ext.reverse();
-  const certas=st.filter(x=>x==='ok').length;let idx=0,fr=0;const fs=fras(texto);
+  const certas=st.filter(x=>x==='ok').length;let idx=0,fr=0;const fs=fras(T);
   fs.forEach(f=>{const k=pals(f).length;let c=0;for(let q=0;q<k;q++)if(st[idx+q]==='ok')c++;idx+=k;if(c/k>=.7)fr++});
   return{st,tm,sub,omi,ext,n,m,certas,fr,nf:fs.length};
 }
-function lista(c,tr){
-  const w=pals(texto),f=(arr,t)=>`<p class="msg"><b>${t} (${arr.length}):</b> ${arr.length?arr.join(' · '):'nenhuma'}</p>`;
+function lista(c,tr,T=texto){
+  const w=pals(T),f=(arr,t)=>`<p class="msg"><b>${t} (${arr.length}):</b> ${arr.length?arr.join(' · '):'nenhuma'}</p>`;
   return f(c.sub.map(x=>esc(x.de)+' → '+esc(x.para)),'Trocadas')+f(c.omi.map(k=>esc(w[k])),'Engolidas')+f(c.ext.map(esc),'Palavras a mais')+`<p class="nota">O app entendeu: “${esc(tr)}”</p>`;
 }
 
 // ---- gravação ----
-let ctx,an,stream,tick,frames=[],t0,gravando=false,transcr='',sr=null,mr,chunks=[];
+let ctx,an,stream,tick,frames=[],t0,gravando=false,transcr='',sr=null,mr,chunks=[],srErro='';
 const cv=$('cv'),g=cv.getContext('2d');
 function tom(buf,rate){
   let c0=0;for(let i=0;i<buf.length;i++)c0+=buf[i]*buf[i];const rms=Math.sqrt(c0/buf.length);
@@ -251,7 +269,7 @@ async function iniciar(){
   tick=setInterval(()=>{an.getFloatTimeDomainData(buf);const r=tom(buf,ctx.sampleRate);frames.push({t:(performance.now()-t0)/1000,rms:r.rms,f:r.f});medidor(dbv(r.rms));desenha();histVol()},50);
   try{chunks=[];mr=new MediaRecorder(stream);mr.ondataavailable=e=>chunks.push(e.data);mr.onstop=()=>salvaAudio(new Blob(chunks,{type:mr.mimeType}));mr.start()}catch(e){mr=null}
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(SR){try{sr=new SR();sr.lang='pt-BR';sr.continuous=true;sr.interimResults=false;sr.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++)transcr+=e.results[i][0].transcript+' '};sr.onerror=()=>{};sr.start()}catch(e){sr=null}}
+  if(SR){try{sr=new SR();sr.lang='pt-BR';sr.continuous=true;sr.interimResults=false;sr.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++)transcr+=e.results[i][0].transcript+' '};sr.onerror=e=>{srErro=e.error||'erro'};sr.onend=()=>{if(gravando){try{sr.start()}catch(e){}}};srErro='';sr.start()}catch(e){sr=null}}
 }
 function parar(){
   gravando=false;clearInterval(tick);if(sr){try{sr.stop()}catch(e){}}if(mr&&mr.state!=='inactive')mr.stop();
@@ -288,8 +306,8 @@ function analisa(){
   if(cmp){mostra(cmp);
     const em=ld('fono_err',{});pals(texto).forEach((w,i)=>{if(cmp.st[i]&&cmp.st[i]!=='ok'){const c=w.replace(/[^\p{L}\p{N}-]/gu,'').toLowerCase();if(c.length>2)em[c]=(em[c]||0)+1}});sv('fono_err',em);
     $('cb').innerHTML=[['Palavras no texto',cmp.n],['Palavras lidas certas',cmp.certas],['Palavras trocadas',cmp.sub.length],['Palavras engolidas',cmp.omi.length],['Palavras a mais',cmp.ext.length],['Frases no texto',cmp.nf],['Frases lidas corretamente',cmp.fr]].map(([a,b])=>`<tr><td>${a}</td><td>${b}</td></tr>`).join('');
-    $('cd').innerHTML=lista(cmp,tr);$('cn').textContent='No texto: vermelho sublinhado = palavra trocada (a lista acima mostra por qual); laranja riscado = palavra engolida.'}
-  else{$('cb').innerHTML='';$('cd').innerHTML='';$('cn').textContent='A comparação com o texto precisa do reconhecimento de fala (Chrome, abrindo a página por https).'}
+    $('cd').innerHTML=lista(cmp,tr);$('cn').textContent='No texto: vermelho sublinhado = palavra trocada (a lista acima mostra por qual); laranja riscado = palavra engolida. O reconhecimento do navegador às vezes "corrige" a palavra para a mais provável, então algum erro pode passar; o treino guiado, frase a frase, é mais fiel.'}
+  else{$('cb').innerHTML='';$('cd').innerHTML='';$('cn').textContent=!(window.SpeechRecognition||window.webkitSpeechRecognition)?'Este navegador não tem reconhecimento de fala; use o Chrome para comparar com o texto.':srErro?'O reconhecimento de fala falhou ('+srErro+'). Confira a permissão do microfone e se a página está em https.':'O reconhecimento não ouviu palavras nesta leitura. Fale mais perto do microfone e tente de novo.'}
   $('cmp').hidden=false;$('st').textContent='Pronto. Veja o resultado abaixo.';grafico();histo();if(appD&&cfg.nuvem)sincroniza();
 }
 $('rec').onclick=()=>gravando?parar():iniciar();
@@ -397,6 +415,59 @@ $('rgo').onclick=async()=>{
   if(cfg.mus)await musica();
   passo(fases(),0,0);
 };
+
+// ---- treino guiado ----
+let gi=0,gt=0,gRec=null,gAuto=false,gSil=0,gPrev=null,gPrevI=-1,gRev=[];
+const frasesG=()=>fras(texto);
+function gMostra(c){const f=frasesG();gi=Math.min(gi,f.length-1);$('gf').innerHTML=marca(f[gi]||'',c);$('gp').textContent=`Frase ${gi+1} de ${f.length}`+(gt?` · tentativa ${gt}`:'')}
+function gFala(){
+  if(!window.speechSynthesis){$('gp').textContent='Este navegador não fala em voz alta.';return Promise.resolve()}
+  speechSynthesis.cancel();
+  return new Promise(res=>{const u=new SpeechSynthesisUtterance(frasesG()[gi]);u.lang='pt-BR';u.rate=Math.max(.5,cfg.vel/100*(cfg.gentil&&gt>=1?.8:1));u.onend=res;u.onerror=res;speechSynthesis.speak(u)});
+}
+function gOuve(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){$('gr').innerHTML='<p class="nota erro">Este navegador não tem reconhecimento de fala. Use o Chrome.</p>';return}
+  if(gRec){try{gRec.stop()}catch(e){}}
+  const alvo=frasesG()[gi];gt++;gMostra();$('gre').textContent='Ouvindo... fale agora';$('gre').disabled=true;
+  const r=new SR();gRec=r;r.lang='pt-BR';r.continuous=false;r.interimResults=false;let fala='',erro='';
+  r.onresult=e=>{for(let i=0;i<e.results.length;i++)fala+=e.results[i][0].transcript+' '};
+  r.onerror=e=>{erro=e.error||'erro'};
+  r.onend=()=>{
+    $('gre').textContent='Repetir agora';$('gre').disabled=false;
+    if(fala.trim()){gSil=0;const bom=gResultado(alvo,fala.trim());if(gAuto)gSegue(bom)}
+    else{$('gr').innerHTML=`<p class="nota ${erro&&erro!=='no-speech'?'erro':''}">${erro&&erro!=='no-speech'?'Não consegui ouvir ('+esc(erro)+'). Verifique a permissão do microfone.':'Não ouvi nada. Fale logo depois da frase e tente de novo.'}</p>`;gt=Math.max(0,gt-1);if(gAuto){if(++gSil>=3){gAuto=false;$('gst').textContent='Começar treino guiado';$('gr').insertAdjacentHTML('beforeend','<p class="msg">Parei porque não ouvi nada três vezes seguidas. Toque em Começar quando estiver pronto.</p>')}else gSegue(false)}}
+  };
+  $('gr').innerHTML='';try{r.start()}catch(e){}
+}
+function gResultado(alvo,fala){
+  const c=compara(fala,alvo),pc=Math.round(c.certas/c.n*100),bom=pc>=cfg.meta;
+  const ant=gPrevI===gi?gPrev:null;gPrevI=gi;gPrev=pc;
+  let m;
+  if(bom)m=cfg.gentil?'Muito bem!':'Meta batida.';
+  else if(cfg.gentil)m=(ant!=null&&pc>ant)?`Você melhorou: de ${ant}% para ${pc}%. Vamos de novo, no seu ritmo.`:'Está no caminho. Vamos de novo, no seu ritmo.';
+  else m=`Abaixo da meta de ${cfg.meta}%. Repita até bater.`;
+  $('gf').innerHTML=marca(alvo,c);
+  $('gr').innerHTML=`<p class="msg"><b>${pc}% das palavras certas</b> (${c.certas} de ${c.n}). ${m}</p>`+lista(c,fala,alvo);
+  return bom;
+}
+async function gCiclo(){if(!gAuto)return;$('gr').innerHTML='';gMostra();await gFala();if(gAuto)setTimeout(gOuve,400)}
+function gSegue(bom){
+  if(!gAuto)return;
+  const esgotou=cfg.gentil&&gt>=cfg.maxt;
+  if(bom||esgotou){
+    if(!bom){gRev.push(gi+1);$('gr').insertAdjacentHTML('beforeend','<p class="msg">Vamos seguir. Essa frase fica para rever depois.</p>')}
+    if(gi>=frasesG().length-1){gAuto=false;$('gst').textContent='Começar treino guiado';$('gr').insertAdjacentHTML('beforeend','<p class="msg"><b>Treino concluído!</b>'+(gRev.length?' Frases para rever: '+gRev.join(', ')+'.':'')+'</p>');return}
+    setTimeout(()=>{if(gAuto){gi++;gt=0;gCiclo()}},3000);
+  }else setTimeout(gCiclo,3000);
+}
+$('gst').onclick=()=>{
+  if(gAuto){gAuto=false;if(window.speechSynthesis)speechSynthesis.cancel();if(gRec){try{gRec.stop()}catch(e){}}$('gst').textContent='Começar treino guiado';return}
+  gAuto=true;gi=0;gt=0;gSil=0;gRev=[];gPrevI=-1;$('gst').textContent='Parar treino';gCiclo();
+};
+$('gou').onclick=()=>gFala();$('gre').onclick=()=>{gAuto=false;$('gst').textContent='Começar treino guiado';gOuve()};
+const gAv=d=>{gAuto=false;$('gst').textContent='Começar treino guiado';const f=frasesG();gi=(gi+d+f.length)%f.length;gt=0;$('gr').innerHTML='';gMostra();gFala()};
+$('gpx').onclick=()=>gAv(1);$('gan').onclick=()=>gAv(-1);
 
 // ---- conta e sincronização (fenix-core) ----
 // Endereço do fenix-core.js (nome fixo). Ajuste para o endereço real, uma vez só.
